@@ -12,7 +12,7 @@ class MandatoryError(UndefinedError):
         super().__init__(message)
 
 
-def mandatory(value, error_message=u''):
+def mandatory(value, error_message=u""):
     """Raise an 'UndefinedError' with an custom error massage, when value is undefined"""
     if type(value) is StrictUndefined:
         error_message = str(error_message) or "The variable '{0}' is undefined".format(value._undefined_name)
@@ -52,12 +52,12 @@ def regex_search(value, pattern, *args, **kwargs):
     """Do a regex search on 'value'"""
     groups = []
     for arg in args:
-        match = re.match(r'\\(\d+)', arg)
+        match = re.match(r"\\(\d+)", arg)
         if match:
             groups.append(int(match.group(1)))
             continue
 
-        match = re.match(r'^\\g<(\S+)>', arg)
+        match = re.match(r"^\\g<(\S+)>", arg)
         if match:
             groups.append(match.group(1))
             continue
@@ -65,9 +65,9 @@ def regex_search(value, pattern, *args, **kwargs):
         raise Exception("Unknown argument: '{}'".format(str(arg)))
 
     flags = 0
-    if kwargs.get('ignorecase'):
+    if kwargs.get("ignorecase"):
         flags |= re.I
-    if kwargs.get('multiline'):
+    if kwargs.get("multiline"):
         flags |= re.M
     compiled_pattern = re.compile(pattern, flags=flags)
     match = re.search(compiled_pattern, str(value))
@@ -80,6 +80,7 @@ def regex_search(value, pattern, *args, **kwargs):
             for item in groups:
                 items.append(match.group(item))
             return items
+
 
 def regex_contains(value, pattern, ignorecase=False, multiline=False):
     """Search the 'value' for 'pattern' and return True if at least one match was found"""
@@ -112,14 +113,8 @@ def to_bool(string, default_value=None):
 
 def to_yaml(value, indent=2, *args, **kw):
     """Convert the value to human readable YAML"""
-    return yaml.dump(
-        value,
-        block_seq_indent=indent,
-        indent=indent,
-        allow_unicode=True,
-        default_flow_style=False,
-        **kw
-    )
+    return yaml.dump(value, block_seq_indent=indent, indent=indent, allow_unicode=True, default_flow_style=False, **kw)
+
 
 def to_json(value, *args, **kw):
     """Convert the value to JSON"""
@@ -128,19 +123,39 @@ def to_json(value, *args, **kw):
 
 def to_nice_json(value, indent=4, *args, **kw):
     """Convert the value to human readable JSON"""
-    return json.dumps(value, indent=indent, sort_keys=True, separators=(',', ': '), *args, **kw)
+    return json.dumps(value, indent=indent, sort_keys=True, separators=(",", ": "), *args, **kw)
+
+
+def host_ip(value, *args, **kw):
+    """Get host ip"""
+    import socket
+
+    return [
+        l
+        for l in (
+            [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1],
+            [
+                [
+                    (s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close())
+                    for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
+                ][0][1]
+            ],
+        )
+        if l
+    ][0][0]
 
 
 # register the filters
 filters = {
-    'mandatory': mandatory,
-    'regex_escape': regex_escape,
-    'regex_findall': regex_findall,
-    'regex_replace': regex_replace,
-    'regex_search': regex_search,
-    'regex_contains': regex_contains,
-    'to_bool': to_bool,
-    'to_yaml': to_yaml,
-    'to_json': to_json,
-    'to_nice_json': to_nice_json,
+    "mandatory": mandatory,
+    "regex_escape": regex_escape,
+    "regex_findall": regex_findall,
+    "regex_replace": regex_replace,
+    "regex_search": regex_search,
+    "regex_contains": regex_contains,
+    "to_bool": to_bool,
+    "to_yaml": to_yaml,
+    "to_json": to_json,
+    "to_nice_json": to_nice_json,
+    "host_ip": host_ip,
 }

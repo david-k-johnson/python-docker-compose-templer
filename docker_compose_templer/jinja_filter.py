@@ -126,7 +126,7 @@ def to_nice_json(value, indent=4, *args, **kw):
     return json.dumps(value, indent=indent, sort_keys=True, separators=(",", ": "), *args, **kw)
 
 
-def host_ip(value, *args, **kw):
+def host_ip(*args, **kw):
     """Get host ip"""
     import socket
 
@@ -145,6 +145,22 @@ def host_ip(value, *args, **kw):
     ][0][0]
 
 
+def get_env(_key, key, *args, **kw):
+    """get rando environment variable"""
+    import os
+    return os.getenv(key)
+
+
+def get_ansible_aliases(ip, *args, **kw):
+    """get rando environment variable"""
+    import requests
+    response = requests.get(f"https://anubis.dev.purestorage.com/api/2/devices?search={ip}")
+    name = next(iter(response.json().get('devices', [])), {}).get('id', None)
+
+    response = requests.get(f"https://anubis.dev.purestorage.com/api/2/devices/{name}/aliases?deleted=false")
+    return sorted([d.get('name') for d in response.json() if d.get('deleted', True) is False])
+
+
 # register the filters
 filters = {
     "mandatory": mandatory,
@@ -158,4 +174,6 @@ filters = {
     "to_json": to_json,
     "to_nice_json": to_nice_json,
     "host_ip": host_ip,
+    "get_env": get_env,
+    "get_ansible_aliases": get_ansible_aliases,
 }

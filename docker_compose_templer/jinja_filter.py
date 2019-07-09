@@ -151,7 +151,7 @@ def get_env(_key, key, *args, **kw):
     return os.getenv(key)
 
 
-def get_ansible_aliases(ip, *args, **kw):
+def get_anubis_aliases(ip, *args, **kw):
     """get rando environment variable"""
     import requests
     response = requests.get(f"https://anubis.dev.purestorage.com/api/2/devices?search={ip}")
@@ -175,5 +175,5 @@ filters = {
     "to_nice_json": to_nice_json,
     "host_ip": host_ip,
     "get_env": get_env,
-    "get_ansible_aliases": get_ansible_aliases,
+    "get_anubis_aliases": get_anubis_aliases,
 }
